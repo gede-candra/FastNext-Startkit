@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="docs/assets/fastnext-logo.png" alt="FastNext logo" width="180">
+  <img src="docs/assets/fastnext-logo.png" alt="FastNext logo" width="400">
 </p>
 
 # FastNext Startkit
 
-Starterkit monorepo generik untuk proyek web dengan stack:
+FastNext adalah starter kit untuk membangun aplikasi web berbasis Python dengan arsitektur backend dan frontend terpisah. Stack utama yang digunakan:
 - Backend: FastAPI + SQLAlchemy + Alembic
 - Frontend: Next.js (App Router + TypeScript)
 - Database: PostgreSQL, MySQL, atau SQLite
@@ -12,10 +12,9 @@ Starterkit monorepo generik untuk proyek web dengan stack:
 ## Daftar Isi
 
 1. [Struktur Proyek](#struktur-proyek)
-2. [Prasyarat](#prasyarat)
-3. [Setup Docker (Mode Server / Production-Style)](#1-setup-docker-mode-server--production-style)
-4. [Setup Lokal Tanpa Docker (Opsional Dev)](#2-setup-lokal-tanpa-docker-opsional-dev)
-5. [Endpoint Default](#3-endpoint-default)
+2. [Setup Docker (Mode Server / Production-Style)](#1-setup-docker-mode-server--production-style)
+3. [Setup Lokal Tanpa Docker (Opsional Dev)](#2-setup-lokal-tanpa-docker-opsional-dev)
+4. [Endpoint Default](#3-endpoint-default)
 
 ## Struktur Proyek
 
@@ -46,10 +45,6 @@ fastnext/                             # Root monorepo starterkit
 ├── docker-compose.yml                # Orkestrasi seluruh service (app + db)
 └── README.md                         # Dokumentasi proyek
 ```
-
-## Prasyarat
-
-- Docker Engine + Docker Compose plugin
 
 ## 1. Setup Docker (Mode Server / Production-Style)
 
