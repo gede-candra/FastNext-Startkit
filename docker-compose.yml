@@ -1,0 +1,72 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fastnext-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fastnext-frontend
+    restart: unless-stopped
+    env_file:
+      - ./frontend/.env
+    environment:
+      BASE_URL: http://backend:8000
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+
+  postgres:
+    image: postgres:16
+    container_name: fastnext-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-fastnext_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password123}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - fastnext_pgdata:/var/lib/postgresql/data
+
+  mysql:
+    image: mysql:8.4
+    container_name: fastnext-mysql
+    restart: unless-stopped
+    profiles: ["mysql"]
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-fastnext_db}
+      MYSQL_USER: ${MYSQL_USER:-postgres}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password123}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password123}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - fastnext_mysqldata:/var/lib/mysql
+
+  sqlite:
+    image: alpine:3.21
+    container_name: fastnext-sqlite
+    restart: "no"
+    profiles: ["sqlite"]
+    working_dir: /workspace
+    command: >
+      sh -c "mkdir -p backend/data && touch backend/data/fastnext_db.db && echo 'SQLite DB file ready at backend/data/fastnext_db.db'"
+    volumes:
+      - ./:/workspace
+
+volumes:
+  fastnext_pgdata:
+  fastnext_mysqldata:
