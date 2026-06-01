@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const appName = process.env.APP_NAME || "Starter App";
+const appName = process.env.APP_NAME || "Fastnext";
 const baseUrl = process.env.BASE_URL || "http://localhost:8000";
 const apiPrefix = process.env.API_PREFIX || "/api";
 

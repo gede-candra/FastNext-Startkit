@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="docs/assets/fastnext-logo.png" alt="FastNext logo" width="400">
+  <img src="docs/assets/fastnext-logo.png" alt="FASTNEXT logo" width="400">
 </p>
 
-# FastNext Startkit
+# FASTNEXT Startkit
 
-FastNext adalah starter kit untuk membangun aplikasi web berbasis Python dengan arsitektur backend dan frontend terpisah. Stack utama yang digunakan:
+FASTNEXT adalah starter kit untuk membangun aplikasi web berbasis Python dengan arsitektur backend dan frontend terpisah. Stack utama yang digunakan:
 - Backend: FastAPI + SQLAlchemy + Alembic
 - Frontend: Next.js (App Router + TypeScript)
 - Database: PostgreSQL, MySQL, atau SQLite
@@ -12,8 +12,8 @@ FastNext adalah starter kit untuk membangun aplikasi web berbasis Python dengan 
 ## Daftar Isi
 
 1. [Struktur Proyek](#struktur-proyek)
-2. [Setup Docker (Mode Server / Production-Style)](#1-setup-docker-mode-server--production-style)
-3. [Setup Lokal Tanpa Docker (Opsional Dev)](#2-setup-lokal-tanpa-docker-opsional-dev)
+2. [Setup Docker](#1-setup-docker)
+3. [Setup Lokal Tanpa Docker](#2-setup-lokal-tanpa-docker)
 4. [Endpoint Default](#3-endpoint-default)
 
 ## Struktur Proyek
@@ -46,12 +46,9 @@ fastnext/                             # Root monorepo starterkit
 └── README.md                         # Dokumentasi proyek
 ```
 
-## 1. Setup Docker (Mode Server / Production-Style)
+## 1. Setup Docker
 
-Pada mode ini semua service dijalankan lewat Docker.
-Setelah file environment selesai disiapkan, Anda cukup menjalankan:
-- `docker compose up -d`
-- atau `docker compose up -d --build` (jika ada perubahan kode/image)
+Gunakan mode ini jika ingin menjalankan semua service melalui Docker Compose.
 
 ### 1.1 Siapkan file environment
 
@@ -60,19 +57,19 @@ cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env
 ```
 
-### 1.2 Isi konfigurasi `.env` backend (wajib sebelum run)
+### 1.2 Konfigurasi backend untuk Docker
 
-Yang wajib diisi:
-- `DB_ENGINE`
-- `DB_NAME`
-- `DB_USER`
-- `DB_PASSWORD`
-- `DB_HOST`
-- `DB_PORT`
-
-Contoh PostgreSQL (default Compose):
+Edit `backend/.env`. Untuk PostgreSQL bawaan Compose, gunakan nilai berikut:
 
 ```env
+APP_NAME=Starter API
+APP_ENV=development
+APP_HOST=0.0.0.0
+APP_PORT=8000
+ALLOWED_ORIGINS=http://localhost:3000
+AUTH_SECRET_KEY=change-this-secret-in-your-env
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+
 DB_ENGINE=django.db.backends.postgresql
 DB_NAME=fastnext_db
 DB_USER=postgres
@@ -81,7 +78,12 @@ DB_HOST=postgres
 DB_PORT=5432
 ```
 
-Contoh MySQL (aktifkan profile `mysql`):
+Yang penting untuk Docker:
+- `DB_HOST` harus memakai nama service database, misalnya `postgres` atau `mysql`.
+- `DB_PASSWORD` harus sama dengan password database di `docker-compose.yml`.
+- Ganti `AUTH_SECRET_KEY` untuk environment selain lokal.
+
+Jika memakai MySQL profile, gunakan:
 
 ```env
 DB_ENGINE=django.db.backends.mysql
@@ -92,57 +94,80 @@ DB_HOST=mysql
 DB_PORT=3306
 ```
 
-Contoh SQLite:
+Jika memakai SQLite:
 
 ```env
 DB_ENGINE=django.db.backends.sqlite3
 DB_NAME=./data/fastnext_db.db
 ```
 
-Catatan penting:
-- Untuk Docker, `DB_HOST` harus memakai nama service container (`postgres` atau `mysql`), bukan `localhost`.
-- Jika `DATABASE_URL` diisi, nilai tersebut akan override seluruh `DB_*`.
+### 1.3 Konfigurasi frontend
 
-### 1.3 Isi konfigurasi `.env` frontend
-
-Di `frontend/.env` pastikan minimal:
+Edit `frontend/.env`:
 
 ```env
-APP_NAME=Starter App
+APP_NAME=Fastnext
 BASE_URL=http://localhost:8000
 API_PREFIX=/api
-
 ```
 
-`BASE_URL` adalah target backend untuk Next.js rewrite, dan `API_PREFIX` adalah public prefix di frontend (contoh: `/api`).
+Pada Docker Compose, `BASE_URL` akan dioverride menjadi `http://backend:8000` oleh `docker-compose.yml`, sehingga browser tetap cukup memakai `/api` dari frontend.
 
-### 1.4 Jalankan semua service via Docker
+### 1.4 Jalankan service
 
-PostgreSQL stack (default):
+PostgreSQL default:
 
 ```bash
 docker compose up -d --build
 ```
 
-MySQL stack:
+MySQL:
 
 ```bash
 docker compose --profile mysql up -d --build
 ```
 
-SQLite stack (inisialisasi file DB SQLite):
+SQLite:
 
 ```bash
 docker compose --profile sqlite up
-```
-
-Lalu jalankan app stack:
-
-```bash
 docker compose up -d --build
 ```
 
-### 1.5 Operasional Docker
+### 1.5 Jalankan migrasi database
+
+```bash
+docker compose exec backend alembic upgrade head
+```
+
+### 1.6 Buat superadmin pertama
+
+Interaktif:
+
+```bash
+docker compose exec backend python createsuperuser.py
+```
+
+Atau langsung dengan argumen:
+
+```bash
+docker compose exec backend python createsuperuser.py \
+  --name "Superadmin" \
+  --email admin@example.com \
+  --password password123 \
+  --no-input
+```
+
+Lalu login di `http://localhost:3000` memakai email dan password tersebut.
+
+Endpoint `/api/v1/auth/bootstrap` masih tersedia untuk membuat akun awal lewat API, tetapi command `createsuperuser.py` lebih cocok untuk setup dari terminal.
+
+### 1.7 Buka aplikasi
+
+- Frontend login: `http://localhost:3000`
+- Backend docs: `http://localhost:8000/docs`
+
+### 1.8 Operasional Docker
 
 Lihat status service:
 
@@ -163,28 +188,31 @@ Hentikan semua service:
 docker compose down
 ```
 
-## 2. Setup Lokal Tanpa Docker (Opsional Dev)
+## 2. Setup Lokal Tanpa Docker
 
-Mode ini tetap didukung untuk pengembangan lokal/manual.
+Gunakan mode ini jika ingin menjalankan backend dan frontend langsung dari machine lokal.
 
-### 2.1 Isi konfigurasi `.env` backend (wajib sebelum run)
+### 2.1 Siapkan backend
 
 ```bash
 cd backend
 cp .env.example .env
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-Yang wajib diisi:
-- `DB_ENGINE`
-- `DB_NAME`
-- `DB_USER`
-- `DB_PASSWORD`
-- `DB_HOST` (`localhost` untuk lokal)
-- `DB_PORT`
-
-Contoh PostgreSQL lokal:
+Edit `backend/.env`. Untuk PostgreSQL lokal:
 
 ```env
+APP_NAME=Starter API
+APP_ENV=development
+APP_HOST=0.0.0.0
+APP_PORT=8000
+ALLOWED_ORIGINS=http://localhost:3000
+AUTH_SECRET_KEY=change-this-secret-in-your-env
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+
 DB_ENGINE=django.db.backends.postgresql
 DB_NAME=fastnext_db
 DB_USER=postgres
@@ -193,7 +221,7 @@ DB_HOST=localhost
 DB_PORT=5432
 ```
 
-Contoh MySQL lokal:
+Jika memakai MySQL lokal:
 
 ```env
 DB_ENGINE=django.db.backends.mysql
@@ -204,53 +232,96 @@ DB_HOST=localhost
 DB_PORT=3306
 ```
 
-Contoh SQLite lokal:
+Jika memakai SQLite lokal:
 
 ```env
 DB_ENGINE=django.db.backends.sqlite3
 DB_NAME=./data/fastnext_db.db
 ```
 
-### 2.2 Isi konfigurasi `.env` frontend
+Jika `DATABASE_URL` diisi, nilainya akan override seluruh konfigurasi `DB_*`.
+
+### 2.2 Jalankan migrasi lokal
+
+Masih dari direktori `backend` dan virtualenv aktif:
+
+```bash
+alembic upgrade head
+```
+
+### 2.3 Jalankan backend lokal
+
+Masih dari direktori `backend`:
+
+```bash
+python runserver.py
+```
+
+Atau jalankan dengan port eksplisit:
+
+```bash
+python runserver.py 8000
+```
+
+Secara default backend berjalan di `http://127.0.0.1:8000`. Jika port 8000 sudah dipakai, `runserver.py` akan mencari port kosong berikutnya. Jika port ditentukan eksplisit seperti `python runserver.py 8000`, server akan gagal start saat port tersebut sedang dipakai.
+
+### 2.4 Siapkan frontend
+
+Buka terminal lain:
 
 ```bash
 cd frontend
 cp .env.example .env
+npm install
 ```
 
-Di `frontend/.env` pastikan minimal:
+Edit `frontend/.env`:
 
 ```env
-APP_NAME=Starter App
+APP_NAME=Fastnext
 BASE_URL=http://localhost:8000
 API_PREFIX=/api
-
 ```
 
-`BASE_URL` adalah target backend untuk Next.js rewrite, dan `API_PREFIX` adalah public prefix di frontend (contoh: `/api`).
+Jika backend lokal berjalan di port lain, sesuaikan `BASE_URL`.
 
-### 2.3 Jalankan backend
-
-```bash
-cd backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python runserver.py
-```
-
-### 2.4 Jalankan frontend
+### 2.5 Jalankan frontend lokal
 
 ```bash
-cd frontend
-npm install
 npm run dev
 ```
+
+Frontend akan berjalan di `http://localhost:3000`.
+
+### 2.6 Buat superadmin pertama
+
+Masih dari direktori `backend` dan virtualenv aktif, buat akun superadmin pertama secara interaktif:
+
+```bash
+python createsuperuser.py
+```
+
+Atau langsung dengan argumen:
+
+```bash
+python createsuperuser.py \
+  --name "Superadmin" \
+  --email admin@example.com \
+  --password password123 \
+  --no-input
+```
+
+Setelah berhasil, buka `http://localhost:3000` dan login dengan akun tersebut. Halaman awal aplikasi sekarang adalah form login. Setelah login berhasil, user diarahkan ke `/dashboard`.
+
+Endpoint bootstrap tetap tersedia sebagai alternatif API untuk membuat user awal. Setelah ada user yang memiliki password, pembuatan user berikutnya dilakukan melalui endpoint `/api/v1/users` dan membutuhkan token superadmin.
 
 ## 3. Endpoint Default
 
 - Frontend: `http://localhost:3000`
 - Backend root: `http://localhost:8000/`
-- Welcome endpoint: `http://localhost:8000`
+- Welcome endpoint: `http://localhost:8000/welcome`
 - Health check: `http://localhost:8000/api/v1/health`
+- Login: `POST http://localhost:8000/api/v1/auth/login`
+- User aktif: `GET http://localhost:8000/api/v1/auth/me`
+- Bootstrap superadmin: `POST http://localhost:8000/api/v1/auth/bootstrap`
 - API docs: `http://localhost:8000/docs`

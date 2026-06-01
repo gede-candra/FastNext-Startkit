@@ -16,6 +16,12 @@ class Settings(BaseSettings):
     db_password: str = "postgres"
     db_host: str = "localhost"
     db_port: str = "5432"
+    auth_secret_key: str = "change-me-in-env"
+    auth_cookie_name: str = "begos_finance_session"
+    auth_cookie_secure: bool = False
+    auth_cookie_samesite: str = "lax"
+    csrf_cookie_name: str = "begos_finance_csrf"
+    access_token_expire_minutes: int = 60
 
     model_config = SettingsConfigDict(
         env_file=".env",

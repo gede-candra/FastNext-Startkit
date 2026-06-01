@@ -10,6 +10,7 @@ Instruksi ini berlaku untuk seluruh proyek.
 
 ## Konteks Proyek
 
+- Untuk orientasi cepat dan hemat token, baca `PROJECT_CONTEXT.md` terlebih dahulu jika task membutuhkan konteks proyek umum. Tetap verifikasi detail dari file sumber sebelum mengubah atau menyatakan perilaku spesifik.
 - Monorepo starter full-stack.
 - Backend: FastAPI, SQLAlchemy, Alembic, Pydantic Settings.
 - Frontend: Next.js App Router, React, TypeScript.
@@ -39,6 +40,7 @@ Instruksi ini berlaku untuk seluruh proyek.
 - Jangan menyebut endpoint, command, script, tabel, model, atau env var yang tidak ditemukan di repo.
 - Jangan mengklaim test/lint/build berhasil kalau belum dijalankan.
 - Jangan mengubah dependency tanpa alasan yang jelas dan tanpa memperbarui lockfile terkait bila diperlukan.
+- Jangan mengubah title, deskripsi, nama proyek, metadata, atau branding default proyek kecuali user secara eksplisit meminta.
 - Jangan menghapus atau mereset perubahan user.
 - Jangan membuat arsitektur baru jika pola lokal yang ada sudah cukup.
 - Jangan menambahkan library untuk hal sederhana yang bisa diselesaikan dengan stack yang sudah ada.
@@ -49,6 +51,7 @@ Instruksi ini berlaku untuk seluruh proyek.
 - Simpan konfigurasi runtime di `backend/app/core/config.py` atau `.env.example` jika memang konfigurasi baru diperlukan.
 - Tambahkan route melalui router FastAPI yang sudah ada, bukan langsung menumpuk semuanya di `main.py`, kecuali perubahan sangat kecil dan cocok dengan pola saat ini.
 - Untuk akses database, ikuti pola SQLAlchemy/Alembic yang sudah ada. Jika menambah model, sertakan rencana migrasi Alembic.
+- Setiap tabel baru wajib menyertakan kolom `created_at` dan `updated_at` pada model SQLAlchemy dan migration.
 - Jangan hardcode credential, host production, atau nilai rahasia.
 
 ## Pola Frontend
@@ -64,12 +67,22 @@ Instruksi ini berlaku untuk seluruh proyek.
 Jalankan verifikasi paling sempit yang relevan dengan perubahan:
 
 - Frontend:
-  - `cd frontend && npm run build` untuk perubahan build-sensitive.
+  - Jangan jalankan `cd frontend && npm run build` kecuali user secara eksplisit meminta.
+  - Untuk perubahan frontend, lakukan pemeriksaan file/TypeScript yang lebih sempit bila memungkinkan, atau jelaskan verifikasi manual yang perlu dilakukan user.
 - Backend:
   - `cd backend && python -m compileall app` untuk perubahan Python ringan.
   - Jalankan test backend hanya jika test tersedia atau user meminta.
 - Docker:
-  - Gunakan `docker compose config` untuk validasi perubahan Compose.
+  - Jangan jalankan command Docker apa pun di environment lokal ini. Docker hanya tersedia di production/staging server.
+  - Untuk perubahan Compose, lakukan review file secara manual dan jelaskan validasi Docker yang perlu dijalankan di server production/staging.
+
+Jangan menjalankan command long-running/interaktif untuk membuka server development, kecuali user secara eksplisit meminta:
+
+- Jangan jalankan `cd frontend && npm run dev`.
+- Jangan jalankan `cd backend && python runserver.py`.
+- Jangan jalankan `uvicorn`, `next dev`, `docker compose up`, atau command Docker lain.
+
+Setelah task selesai, berikan instruksi manual yang perlu user jalankan untuk mencoba aplikasi, misalnya command dev server, URL lokal, dan prasyarat environment.
 
 Jika command tidak bisa dijalankan karena dependency/env belum siap, sebutkan jelas command yang gagal dan alasannya.
 
@@ -77,5 +90,7 @@ Jika command tidak bisa dijalankan karena dependency/env belum siap, sebutkan je
 
 - Jawab dalam Bahasa Indonesia jika user memakai Bahasa Indonesia.
 - Ringkas: jelaskan file yang diubah, alasan singkat, dan verifikasi yang dilakukan.
+- Akhiri respons selesai-task dengan `Next step:` berisi 1-3 langkah paling relevan yang perlu user lakukan; jangan tulis jika tidak ada langkah lanjutan yang berguna.
+- Jika membuat migration/ubah schema DB, `Next step:` wajib menyebut command lokal untuk menerapkan migration, misalnya `cd backend && alembic upgrade head`; jangan menyarankan command Docker kecuali user eksplisit meminta instruksi untuk production/staging.
 - Untuk investigasi, beri temuan utama dulu. Hindari dump output panjang.
 - Gunakan path file spesifik saat menjelaskan perubahan.
