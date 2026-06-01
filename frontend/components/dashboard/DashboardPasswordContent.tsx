@@ -3,9 +3,17 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 
+import { FormStatusDialog, type FormStatusDialogState } from "../common/FormStatusDialog";
+import { PasswordInput } from "../common/PasswordInput";
 import { updateCurrentUser } from "../../services/authService";
 import type { AuthUser } from "../../types/auth";
 import { ProfileSettingsLayout } from "./ProfileSettingsLayout";
+
+type PasswordFieldErrors = {
+  currentPassword?: string;
+  password?: string;
+  passwordConfirmation?: string;
+};
 
 type DashboardPasswordContentProps = {
   user: AuthUser;
@@ -15,17 +23,18 @@ export function DashboardPasswordContent({ user }: DashboardPasswordContentProps
   const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<PasswordFieldErrors>({});
+  const [statusDialog, setStatusDialog] = useState<FormStatusDialogState | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setMessage(null);
-    setError(null);
+    const nextFieldErrors = validatePasswordForm(currentPassword, password, passwordConfirmation);
 
-    if (password !== passwordConfirmation) {
-      setError("Konfirmasi password tidak sama.");
+    setStatusDialog(null);
+    setFieldErrors(nextFieldErrors);
+
+    if (Object.keys(nextFieldErrors).length > 0) {
       return;
     }
 
@@ -35,9 +44,22 @@ export function DashboardPasswordContent({ user }: DashboardPasswordContentProps
       setCurrentPassword("");
       setPassword("");
       setPasswordConfirmation("");
-      setMessage("Password berhasil diperbarui.");
+      setStatusDialog({
+        description: "Password akun berhasil diperbarui.",
+        title: "Password berhasil disimpan",
+        variant: "success",
+      });
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "Gagal memperbarui password.");
+      const errorMessage = caughtError instanceof Error ? caughtError.message : "Gagal memperbarui password.";
+      if (errorMessage.toLowerCase().includes("password lama")) {
+        setFieldErrors({ currentPassword: errorMessage });
+      } else {
+        setStatusDialog({
+          description: errorMessage,
+          title: "Gagal menyimpan password",
+          variant: "error",
+        });
+      }
     } finally {
       setIsUpdating(false);
     }
@@ -45,45 +67,34 @@ export function DashboardPasswordContent({ user }: DashboardPasswordContentProps
 
   return (
     <ProfileSettingsLayout activeItem="password" user={user}>
-      <form className="profileForm" onSubmit={handleSubmit}>
-        <label>
-          <span>Password lama</span>
-          <input
-            autoComplete="current-password"
-            onChange={(event) => setCurrentPassword(event.target.value)}
-            placeholder="Masukkan password lama"
-            required
-            type="password"
-            value={currentPassword}
-          />
-        </label>
-        <label>
-          <span>Password baru</span>
-          <input
-            autoComplete="new-password"
-            minLength={8}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="Minimal 8 karakter"
-            required
-            type="password"
-            value={password}
-          />
-        </label>
-        <label>
-          <span>Konfirmasi password baru</span>
-          <input
-            autoComplete="new-password"
-            minLength={8}
-            onChange={(event) => setPasswordConfirmation(event.target.value)}
-            placeholder="Ulangi password baru"
-            required
-            type="password"
-            value={passwordConfirmation}
-          />
-        </label>
-
-        {message ? <p className="formSuccess">{message}</p> : null}
-        {error ? <p className="formError">{error}</p> : null}
+      <form className="profileForm" noValidate onSubmit={handleSubmit}>
+        <PasswordInput
+          autoComplete="current-password"
+          error={fieldErrors.currentPassword}
+          label="Password lama"
+          name="currentPassword"
+          onChange={(event) => setCurrentPassword(event.target.value)}
+          placeholder="Masukkan password lama"
+          value={currentPassword}
+        />
+        <PasswordInput
+          autoComplete="new-password"
+          error={fieldErrors.password}
+          label="Password baru"
+          name="password"
+          onChange={(event) => setPassword(event.target.value)}
+          placeholder="Minimal 8 karakter"
+          value={password}
+        />
+        <PasswordInput
+          autoComplete="new-password"
+          error={fieldErrors.passwordConfirmation}
+          label="Konfirmasi password baru"
+          name="passwordConfirmation"
+          onChange={(event) => setPasswordConfirmation(event.target.value)}
+          placeholder="Ulangi password baru"
+          value={passwordConfirmation}
+        />
 
         <div className="formActions">
           <button disabled={isUpdating} type="submit">
@@ -91,6 +102,37 @@ export function DashboardPasswordContent({ user }: DashboardPasswordContentProps
           </button>
         </div>
       </form>
+      <FormStatusDialog
+        isOpen={statusDialog !== null}
+        onClose={() => setStatusDialog(null)}
+        status={statusDialog}
+      />
     </ProfileSettingsLayout>
   );
+}
+
+function validatePasswordForm(
+  currentPassword: string,
+  password: string,
+  passwordConfirmation: string,
+): PasswordFieldErrors {
+  const errors: PasswordFieldErrors = {};
+
+  if (!currentPassword) {
+    errors.currentPassword = "Password lama wajib diisi.";
+  }
+
+  if (!password) {
+    errors.password = "Password baru wajib diisi.";
+  } else if (password.length < 8) {
+    errors.password = "Password baru minimal 8 karakter.";
+  }
+
+  if (!passwordConfirmation) {
+    errors.passwordConfirmation = "Konfirmasi password wajib diisi.";
+  } else if (password !== passwordConfirmation) {
+    errors.passwordConfirmation = "Konfirmasi password tidak sama.";
+  }
+
+  return errors;
 }

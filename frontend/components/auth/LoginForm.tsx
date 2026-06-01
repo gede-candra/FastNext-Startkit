@@ -3,14 +3,23 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { FormStatusDialog, type FormStatusDialogState } from "../common/FormStatusDialog";
+import { PasswordInput } from "../common/PasswordInput";
+import { TextInput } from "../common/TextInput";
 import { getWelcomeTitle } from "../../lib/appBrand";
 import { getCurrentUser, signIn } from "../../services/authService";
+
+type LoginFieldErrors = {
+  email?: string;
+  password?: string;
+};
 
 export function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
+  const [statusDialog, setStatusDialog] = useState<FormStatusDialogState | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -31,14 +40,26 @@ export function LoginForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
+    const nextFieldErrors = validateLoginForm(email, password);
+
+    setStatusDialog(null);
+    setFieldErrors(nextFieldErrors);
+
+    if (Object.keys(nextFieldErrors).length > 0) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       await signIn(email, password);
       router.replace("/dashboard");
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "Login gagal.");
+      setStatusDialog({
+        description: caughtError instanceof Error ? caughtError.message : "Login gagal.",
+        title: "Login gagal",
+        variant: "error",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -51,40 +72,58 @@ export function LoginForm() {
         <h1 id="login-title">{getWelcomeTitle()}</h1>
         <p className="authSubtitle">Silakan masuk menggunakan akun Anda untuk mulai menjelajah.</p>
 
-        <form className="authForm" onSubmit={handleSubmit}>
-          <label>
-            <span>Email</span>
-            <input
-              autoComplete="email"
-              name="email"
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="nama@email.com"
-              required
-              type="email"
-              value={email}
-            />
-          </label>
+        <form className="authForm" noValidate onSubmit={handleSubmit}>
+          <TextInput
+            autoComplete="email"
+            error={fieldErrors.email}
+            label="Email"
+            name="email"
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="nama@email.com"
+            type="email"
+            value={email}
+          />
 
-          <label>
-            <span>Password</span>
-            <input
-              autoComplete="current-password"
-              name="password"
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Minimal 8 karakter"
-              required
-              type="password"
-              value={password}
-            />
-          </label>
-
-          {error ? <p className="formError">{error}</p> : null}
+          <PasswordInput
+            autoComplete="current-password"
+            error={fieldErrors.password}
+            label="Password"
+            name="password"
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="Minimal 8 karakter"
+            value={password}
+          />
 
           <button disabled={isLoading} type="submit">
             {isLoading ? "Memproses..." : "Login"}
           </button>
         </form>
       </section>
+      <FormStatusDialog
+        isOpen={statusDialog !== null}
+        onClose={() => setStatusDialog(null)}
+        status={statusDialog}
+      />
     </main>
   );
+}
+
+function validateLoginForm(email: string, password: string): LoginFieldErrors {
+  const errors: LoginFieldErrors = {};
+
+  if (!email.trim()) {
+    errors.email = "Email wajib diisi.";
+  } else if (!isValidEmail(email)) {
+    errors.email = "Format email tidak valid.";
+  }
+
+  if (!password) {
+    errors.password = "Password wajib diisi.";
+  }
+
+  return errors;
+}
+
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }

@@ -3,9 +3,16 @@
 import type { Dispatch, FormEvent, SetStateAction } from "react";
 import { useEffect, useState } from "react";
 
+import { FormStatusDialog, type FormStatusDialogState } from "../common/FormStatusDialog";
+import { TextInput } from "../common/TextInput";
 import { updateCurrentUser } from "../../services/authService";
 import type { AuthUser } from "../../types/auth";
 import { ProfileSettingsLayout } from "./ProfileSettingsLayout";
+
+type ProfileFieldErrors = {
+  email?: string;
+  name?: string;
+};
 
 type DashboardProfileContentProps = {
   setUser: Dispatch<SetStateAction<AuthUser | null>>;
@@ -15,8 +22,8 @@ type DashboardProfileContentProps = {
 export function DashboardProfileContent({ setUser, user }: DashboardProfileContentProps) {
   const [profileName, setProfileName] = useState("");
   const [profileEmail, setProfileEmail] = useState("");
-  const [profileMessage, setProfileMessage] = useState<string | null>(null);
-  const [profileError, setProfileError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<ProfileFieldErrors>({});
+  const [statusDialog, setStatusDialog] = useState<FormStatusDialogState | null>(null);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
   useEffect(() => {
@@ -26,8 +33,15 @@ export function DashboardProfileContent({ setUser, user }: DashboardProfileConte
 
   async function handleProfileSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setProfileMessage(null);
-    setProfileError(null);
+    const nextFieldErrors = validateProfileForm(profileName, profileEmail);
+
+    setStatusDialog(null);
+    setFieldErrors(nextFieldErrors);
+
+    if (Object.keys(nextFieldErrors).length > 0) {
+      return;
+    }
+
     setIsUpdatingProfile(true);
 
     try {
@@ -36,9 +50,17 @@ export function DashboardProfileContent({ setUser, user }: DashboardProfileConte
         email: profileEmail.trim(),
       });
       setUser(updatedUser);
-      setProfileMessage("Profil berhasil disimpan.");
+      setStatusDialog({
+        description: "Perubahan profil berhasil disimpan.",
+        title: "Profil berhasil disimpan",
+        variant: "success",
+      });
     } catch (caughtError) {
-      setProfileError(caughtError instanceof Error ? caughtError.message : "Gagal menyimpan profil.");
+      setStatusDialog({
+        description: caughtError instanceof Error ? caughtError.message : "Gagal menyimpan profil.",
+        title: "Gagal menyimpan profil",
+        variant: "error",
+      });
     } finally {
       setIsUpdatingProfile(false);
     }
@@ -46,30 +68,24 @@ export function DashboardProfileContent({ setUser, user }: DashboardProfileConte
 
   return (
     <ProfileSettingsLayout activeItem="profile" user={user}>
-      <form className="profileForm" onSubmit={handleProfileSubmit}>
-        <label>
-          <span>Nama</span>
-          <input
-            value={profileName}
-            onChange={(event) => setProfileName(event.target.value)}
-            placeholder="Nama lengkap"
-            required
-            type="text"
-          />
-        </label>
-        <label>
-          <span>Email</span>
-          <input
-            value={profileEmail}
-            onChange={(event) => setProfileEmail(event.target.value)}
-            placeholder="email@domain.com"
-            required
-            type="email"
-          />
-        </label>
-
-        {profileMessage ? <p className="formSuccess">{profileMessage}</p> : null}
-        {profileError ? <p className="formError">{profileError}</p> : null}
+      <form className="profileForm" noValidate onSubmit={handleProfileSubmit}>
+        <TextInput
+          error={fieldErrors.name}
+          label="Nama"
+          name="name"
+          onChange={(event) => setProfileName(event.target.value)}
+          placeholder="Nama lengkap"
+          value={profileName}
+        />
+        <TextInput
+          error={fieldErrors.email}
+          label="Email"
+          name="email"
+          onChange={(event) => setProfileEmail(event.target.value)}
+          placeholder="email@domain.com"
+          type="email"
+          value={profileEmail}
+        />
 
         <div className="formActions">
           <button disabled={isUpdatingProfile} type="submit">
@@ -77,6 +93,31 @@ export function DashboardProfileContent({ setUser, user }: DashboardProfileConte
           </button>
         </div>
       </form>
+      <FormStatusDialog
+        isOpen={statusDialog !== null}
+        onClose={() => setStatusDialog(null)}
+        status={statusDialog}
+      />
     </ProfileSettingsLayout>
   );
+}
+
+function validateProfileForm(name: string, email: string): ProfileFieldErrors {
+  const errors: ProfileFieldErrors = {};
+
+  if (!name.trim()) {
+    errors.name = "Nama wajib diisi.";
+  }
+
+  if (!email.trim()) {
+    errors.email = "Email wajib diisi.";
+  } else if (!isValidEmail(email)) {
+    errors.email = "Format email tidak valid.";
+  }
+
+  return errors;
+}
+
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
