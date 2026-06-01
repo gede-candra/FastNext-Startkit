@@ -4,14 +4,14 @@ import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { ConfirmDialog } from "../common/ConfirmDialog";
+import { ConfirmDialog } from "../molecules/ConfirmDialog";
 import { clearToken, getCurrentUser } from "../../services/authService";
 import type { AuthUser } from "../../types/auth";
-import { DashboardHeader } from "./DashboardHeader";
-import { DashboardPageHeading } from "./DashboardPageHeading";
-import { DashboardSidebar } from "./DashboardSidebar";
+import { Header } from "./Header";
+import { PageHeading } from "./PageHeading";
+import { Sidebar } from "./Sidebar";
 
-type DashboardLayoutProps = {
+type AppLayoutProps = {
   children: (context: {
     setUser: Dispatch<SetStateAction<AuthUser | null>>;
     user: AuthUser;
@@ -19,7 +19,7 @@ type DashboardLayoutProps = {
   title: string;
 };
 
-export function DashboardLayout({ children, title }: DashboardLayoutProps) {
+export function AppLayout({ children, title }: AppLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -44,7 +44,7 @@ export function DashboardLayout({ children, title }: DashboardLayoutProps) {
         if (isMounted) {
           setIsCheckingSession(false);
         }
-        router.replace("/");
+        router.replace("/login");
       });
 
     return () => {
@@ -56,7 +56,7 @@ export function DashboardLayout({ children, title }: DashboardLayoutProps) {
     try {
       await clearToken();
     } finally {
-      router.replace("/");
+      router.replace("/login");
     }
   }
 
@@ -105,10 +105,10 @@ export function DashboardLayout({ children, title }: DashboardLayoutProps) {
         isSidebarMobileOpen ? " sidebarMobileOpen" : ""
       }`}
     >
-      <DashboardSidebar activePath={pathname} isCollapsed={isSidebarCollapsed} />
+      <Sidebar activePath={pathname} isCollapsed={isSidebarCollapsed} />
 
       <div className="dashboardMain">
-        <DashboardHeader
+        <Header
           initials={initials}
           isAccountMenuOpen={isAccountMenuOpen}
           isPasswordPage={pathname === "/change-password"}
@@ -122,7 +122,7 @@ export function DashboardLayout({ children, title }: DashboardLayoutProps) {
         />
 
         <div className="dashboardContentArea">
-          <DashboardPageHeading items={breadcrumbItems} title={title} />
+          <PageHeading items={breadcrumbItems} title={title} />
           {children({ setUser, user })}
         </div>
       </div>
@@ -140,9 +140,9 @@ export function DashboardLayout({ children, title }: DashboardLayoutProps) {
 }
 
 function getBreadcrumbItems(pathname: string, title: string) {
-  const items: Array<{ href?: string; label: string }> = [{ href: "/dashboard", label: "Dashboard" }];
+  const items: Array<{ href?: string; label: string }> = [{ href: "/", label: "Dashboard" }];
 
-  if (pathname === "/dashboard") {
+  if (pathname === "/") {
     return [{ label: "Dashboard" }];
   }
 

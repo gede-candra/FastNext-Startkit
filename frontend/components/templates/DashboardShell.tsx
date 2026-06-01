@@ -1,10 +1,10 @@
 "use client";
 
-import { DashboardLayout } from "./DashboardLayout";
+import { AppLayout } from "../layouts/AppLayout";
 
 export function DashboardShell() {
   return (
-    <DashboardLayout title="Dashboard">
+    <AppLayout title="Dashboard">
       {({ user }) => (
         <section className="dashboardContent" aria-live="polite">
           <dl className="profileGrid">
@@ -19,6 +19,6 @@ export function DashboardShell() {
           </dl>
         </section>
       )}
-    </DashboardLayout>
+    </AppLayout>
   );
 }

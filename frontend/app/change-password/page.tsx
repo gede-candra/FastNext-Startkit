@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DashboardPasswordShell } from "../../components/dashboard/DashboardPasswordShell";
+import { PasswordShell } from "../../components/templates/PasswordShell";
 
 export const dynamic = "force-dynamic";
 
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function ChangePasswordPage() {
-  return <DashboardPasswordShell />;
+  return <PasswordShell />;
 }

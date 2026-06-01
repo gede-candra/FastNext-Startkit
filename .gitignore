@@ -51,6 +51,7 @@ build/
 
 # Local AI/tool state
 .codex
+.agents/
 
 # Logs
 *.log

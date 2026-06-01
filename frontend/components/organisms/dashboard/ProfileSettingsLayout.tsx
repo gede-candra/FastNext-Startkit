@@ -1,8 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import type { AuthUser } from "../../types/auth";
-import { Icon } from "../common/Icon";
+import { Icon } from "../../atoms/Icon";
+import type { AuthUser } from "../../../types/auth";
 
 type ProfileSettingsLayoutProps = {
   activeItem: "profile" | "password";

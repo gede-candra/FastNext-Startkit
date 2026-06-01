@@ -3,10 +3,10 @@
 import type { Dispatch, FormEvent, SetStateAction } from "react";
 import { useEffect, useState } from "react";
 
-import { FormStatusDialog, type FormStatusDialogState } from "../common/FormStatusDialog";
-import { TextInput } from "../common/TextInput";
-import { updateCurrentUser } from "../../services/authService";
-import type { AuthUser } from "../../types/auth";
+import { TextInput } from "../../atoms/TextInput";
+import { FormStatusToast, type FormStatusToastState } from "../../molecules/FormStatusToast";
+import { updateCurrentUser } from "../../../services/authService";
+import type { AuthUser } from "../../../types/auth";
 import { ProfileSettingsLayout } from "./ProfileSettingsLayout";
 
 type ProfileFieldErrors = {
@@ -23,7 +23,7 @@ export function DashboardProfileContent({ setUser, user }: DashboardProfileConte
   const [profileName, setProfileName] = useState("");
   const [profileEmail, setProfileEmail] = useState("");
   const [fieldErrors, setFieldErrors] = useState<ProfileFieldErrors>({});
-  const [statusDialog, setStatusDialog] = useState<FormStatusDialogState | null>(null);
+  const [statusDialog, setStatusDialog] = useState<FormStatusToastState | null>(null);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export function DashboardProfileContent({ setUser, user }: DashboardProfileConte
           </button>
         </div>
       </form>
-      <FormStatusDialog
+      <FormStatusToast
         isOpen={statusDialog !== null}
         onClose={() => setStatusDialog(null)}
         status={statusDialog}

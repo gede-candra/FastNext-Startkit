@@ -1,7 +1,7 @@
+import { Icon } from "../atoms/Icon";
 import type { AuthUser } from "../../types/auth";
-import { Icon } from "../common/Icon";
 
-type DashboardHeaderProps = {
+type HeaderProps = {
   initials: string;
   isAccountMenuOpen: boolean;
   isPasswordPage: boolean;
@@ -14,7 +14,7 @@ type DashboardHeaderProps = {
   user: AuthUser;
 };
 
-export function DashboardHeader({
+export function Header({
   initials,
   isAccountMenuOpen,
   isPasswordPage,
@@ -25,7 +25,7 @@ export function DashboardHeader({
   onToggleSidebar,
   onViewProfile,
   user,
-}: DashboardHeaderProps) {
+}: HeaderProps) {
   return (
     <header className="dashboardHeader">
       <button

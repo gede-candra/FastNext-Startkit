@@ -1,4 +1,4 @@
-import { Icon } from "./Icon";
+import { Icon } from "../atoms/Icon";
 
 type ConfirmDialogProps = {
   confirmLabel?: string;

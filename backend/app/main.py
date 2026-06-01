@@ -19,13 +19,3 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix="/api/v1")
-
-
-@app.get("/", tags=["welcome"])
-def read_root() -> dict[str, str]:
-    return {"message": f"Welcome to {settings.app_name}"}
-
-
-@app.get("/welcome", tags=["welcome"])
-def read_welcome() -> dict[str, str]:
-    return {"message": "Welcome to your starter project"}

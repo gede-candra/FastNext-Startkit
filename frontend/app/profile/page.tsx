@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DashboardProfileShell } from "../../components/dashboard/DashboardProfileShell";
+import { ProfileShell } from "../../components/templates/ProfileShell";
 
 export const dynamic = "force-dynamic";
 
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function ProfilePage() {
-  return <DashboardProfileShell />;
+  return <ProfileShell />;
 }

@@ -3,10 +3,10 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 
-import { FormStatusDialog, type FormStatusDialogState } from "../common/FormStatusDialog";
-import { PasswordInput } from "../common/PasswordInput";
-import { updateCurrentUser } from "../../services/authService";
-import type { AuthUser } from "../../types/auth";
+import { PasswordInput } from "../../atoms/PasswordInput";
+import { FormStatusToast, type FormStatusToastState } from "../../molecules/FormStatusToast";
+import { updateCurrentUser } from "../../../services/authService";
+import type { AuthUser } from "../../../types/auth";
 import { ProfileSettingsLayout } from "./ProfileSettingsLayout";
 
 type PasswordFieldErrors = {
@@ -24,7 +24,7 @@ export function DashboardPasswordContent({ user }: DashboardPasswordContentProps
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [fieldErrors, setFieldErrors] = useState<PasswordFieldErrors>({});
-  const [statusDialog, setStatusDialog] = useState<FormStatusDialogState | null>(null);
+  const [statusDialog, setStatusDialog] = useState<FormStatusToastState | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -102,7 +102,7 @@ export function DashboardPasswordContent({ user }: DashboardPasswordContentProps
           </button>
         </div>
       </form>
-      <FormStatusDialog
+      <FormStatusToast
         isOpen={statusDialog !== null}
         onClose={() => setStatusDialog(null)}
         status={statusDialog}

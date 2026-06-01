@@ -953,140 +953,6 @@ button:disabled {
   font-weight: 800;
 }
 
-.welcomePage {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 32px;
-}
-
-.eyebrow {
-  margin: 0;
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--primary);
-  font-weight: 700;
-}
-
-.welcomePanel {
-  width: min(960px, 100%);
-  text-align: center;
-}
-
-.welcomeLogo {
-  width: min(340px, 78vw);
-  height: auto;
-  margin-bottom: 26px;
-}
-
-.welcomePanel h1 {
-  margin: 10px 0 12px;
-  font-size: clamp(44px, 8vw, 76px);
-  line-height: 1;
-}
-
-.welcomeSubtitle {
-  width: min(650px, 100%);
-  margin: 0 auto;
-  color: var(--muted);
-  font-size: 18px;
-  line-height: 1.7;
-}
-
-.welcomeLinks {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 42px;
-  text-align: left;
-}
-
-.welcomeLinks a {
-  min-height: 136px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 18px;
-  background: var(--surface);
-  box-shadow: var(--shadow);
-  transition:
-    border-color 160ms ease,
-    transform 160ms ease;
-}
-
-.welcomeLinks a:hover {
-  border-color: var(--primary);
-  transform: translateY(-2px);
-}
-
-.welcomeLinks span {
-  display: block;
-  margin-bottom: 10px;
-  font-weight: 800;
-}
-
-.welcomeLinks small {
-  color: var(--muted);
-  line-height: 1.55;
-}
-
-.welcomeFooter {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  margin-top: 34px;
-  color: var(--muted);
-  font-size: 14px;
-}
-
-.statusPanel {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.statusPanel .eyebrow,
-.statusPanel h2 {
-  display: none;
-}
-
-.statusRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.statusDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.statusDot.ok {
-  background: var(--ok);
-}
-
-.statusDot.down {
-  background: var(--down);
-}
-
-.statusTitle,
-.statusDetail {
-  margin: 0;
-  text-align: left;
-}
-
-.statusTitle {
-  font-weight: 700;
-}
-
-.statusDetail {
-  color: var(--muted);
-  font-size: 13px;
-}
-
 @media (max-width: 820px) {
   .dashboardPage {
     grid-template-columns: 1fr;
@@ -1150,25 +1016,9 @@ button:disabled {
     gap: 18px;
   }
 
-  .welcomeLinks {
-    grid-template-columns: 1fr;
-  }
-
-  .welcomeFooter {
-    align-items: flex-start;
-    flex-direction: column;
-  }
 }
 
 @media (max-width: 520px) {
-  .welcomePage {
-    padding: 22px;
-  }
-
-  .welcomeSubtitle {
-    font-size: 16px;
-  }
-
   .authPanel,
   .dashboardContent {
     padding: 22px;

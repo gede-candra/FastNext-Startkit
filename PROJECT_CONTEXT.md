@@ -23,7 +23,7 @@ Ringkasan ini dibuat untuk orientasi cepat agent. Gunakan sebagai peta awal, lal
 - `backend/app/services/`: business logic.
 - `backend/alembic/`: konfigurasi dan migration database.
 - `frontend/app/`: Next.js App Router pages/layouts.
-- `frontend/components/`: komponen React.
+- `frontend/components/`: komponen React dengan pola atomic design (`atoms`, `molecules`, `layouts`, `organisms`, `templates`).
 - `frontend/services/`: service layer frontend.
 - `frontend/repositories/`: wrapper request API frontend.
 - `frontend/types/`: tipe TypeScript bersama.
@@ -40,8 +40,11 @@ Ringkasan ini dibuat untuk orientasi cepat agent. Gunakan sebagai peta awal, lal
 ## Pola Frontend
 
 - Gunakan App Router di `frontend/app/`.
-- Komponen UI reusable ditempatkan di `frontend/components/`.
-- Dashboard memakai shell bersama di `frontend/components/dashboard/`.
+- Komponen UI kecil ditempatkan di `frontend/components/atoms/`.
+- Gabungan kecil seperti dialog/toast ditempatkan di `frontend/components/molecules/`.
+- Bagian layout bersama seperti Header, Sidebar, Footer, dan Breadcrumb ditempatkan di `frontend/components/layouts/`.
+- Blok fitur besar ditempatkan di `frontend/components/organisms/`.
+- Layout/shell/page composition ditempatkan di `frontend/components/templates/`.
 - Request browser ke backend mengikuti `NEXT_PUBLIC_API_PREFIX`, default `/api`.
 - Jangan tambah state management, UI framework, atau library baru tanpa kebutuhan jelas.
 - Jangan jalankan `npm run build` kecuali user eksplisit meminta.
@@ -49,10 +52,12 @@ Ringkasan ini dibuat untuk orientasi cepat agent. Gunakan sebagai peta awal, lal
 ## Fitur Yang Sudah Ada
 
 - Auth memakai cookie `HttpOnly` untuk session token dan CSRF cookie/header untuk request perubahan data.
+- Dashboard utama berada di route `/`; login berada di route `/login`.
 - Dashboard dan halaman profil memakai shared dashboard layout.
 - Logo tanpa teks untuk favicon/sidebar berada di `frontend/public/fastnext-logo-no-text.png`.
 - Profil saya berada di route `/profile`; ubah password berada di route `/change-password`.
-- Modal konfirmasi logout berada di `frontend/components/common/ConfirmDialog.tsx`.
+- Modal konfirmasi logout berada di `frontend/components/molecules/ConfirmDialog.tsx`.
+- Toast hasil submit form berada di `frontend/components/molecules/FormStatusToast.tsx`.
 
 ## Verifikasi Ringan
 

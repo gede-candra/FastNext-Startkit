@@ -3,11 +3,11 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { FormStatusDialog, type FormStatusDialogState } from "../common/FormStatusDialog";
-import { PasswordInput } from "../common/PasswordInput";
-import { TextInput } from "../common/TextInput";
-import { getWelcomeTitle } from "../../lib/appBrand";
-import { getCurrentUser, signIn } from "../../services/authService";
+import { PasswordInput } from "../../atoms/PasswordInput";
+import { TextInput } from "../../atoms/TextInput";
+import { FormStatusToast, type FormStatusToastState } from "../../molecules/FormStatusToast";
+import { getWelcomeTitle } from "../../../lib/appBrand";
+import { getCurrentUser, signIn } from "../../../services/authService";
 
 type LoginFieldErrors = {
   email?: string;
@@ -19,7 +19,7 @@ export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
-  const [statusDialog, setStatusDialog] = useState<FormStatusDialogState | null>(null);
+  const [statusDialog, setStatusDialog] = useState<FormStatusToastState | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export function LoginForm() {
     getCurrentUser()
       .then(() => {
         if (isMounted) {
-          router.replace("/dashboard");
+          router.replace("/");
         }
       })
       .catch(() => undefined);
@@ -53,7 +53,7 @@ export function LoginForm() {
 
     try {
       await signIn(email, password);
-      router.replace("/dashboard");
+      router.replace("/");
     } catch (caughtError) {
       setStatusDialog({
         description: caughtError instanceof Error ? caughtError.message : "Login gagal.",
@@ -99,7 +99,7 @@ export function LoginForm() {
           </button>
         </form>
       </section>
-      <FormStatusDialog
+      <FormStatusToast
         isOpen={statusDialog !== null}
         onClose={() => setStatusDialog(null)}
         status={statusDialog}

@@ -1,26 +1,26 @@
 import Link from "next/link";
 
+import { Icon } from "../atoms/Icon";
 import { getAppName } from "../../lib/appBrand";
-import { Icon } from "../common/Icon";
 
-type DashboardSidebarProps = {
+type SidebarProps = {
   activePath: string;
   isCollapsed: boolean;
 };
 
 const navigationItems = [
   {
-    href: "/dashboard",
+    href: "/",
     label: "Dashboard",
   },
 ];
 
-export function DashboardSidebar({ activePath, isCollapsed }: DashboardSidebarProps) {
+export function Sidebar({ activePath, isCollapsed }: SidebarProps) {
   const appName = getAppName();
 
   return (
     <aside className="dashboardSidebar" aria-label="Navigasi utama">
-      <Link className="sidebarBrand" href="/dashboard" aria-label={`${appName} dashboard`}>
+      <Link className="sidebarBrand" href="/" aria-label={`${appName} dashboard`}>
         <img className="sidebarLogo" src="/fastnext-logo.png" alt="" />
         <span className="visuallyHidden">{appName}</span>
       </Link>

@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
-import { LoginForm } from "../components/auth/LoginForm";
-import { getWelcomeTitle } from "../lib/appBrand";
+import { DashboardShell } from "../components/templates/DashboardShell";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: {
-    absolute: getWelcomeTitle(),
-  },
+  title: "Dashboard",
 };
 
-export default function HomePage() {
-  return <LoginForm />;
+export default function DashboardPage() {
+  return <DashboardShell />;
 }

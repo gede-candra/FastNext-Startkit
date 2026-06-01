@@ -58,11 +58,17 @@ Instruksi ini berlaku untuk seluruh proyek.
 
 - Gunakan Next.js App Router di `frontend/app/`.
 - Gunakan TypeScript dan komponen React sederhana sesuai pola yang ada.
+- Susun komponen frontend dengan pola atomic design:
+  - `frontend/components/atoms/` untuk elemen UI paling kecil seperti `Icon`, `TextInput`, dan `PasswordInput`.
+  - `frontend/components/molecules/` untuk gabungan kecil seperti dialog/toast.
+  - `frontend/components/layouts/` untuk bagian layout bersama seperti Header, Sidebar, Footer, dan Breadcrumb.
+  - `frontend/components/organisms/` untuk blok fitur besar seperti form login dan konten dashboard.
+  - `frontend/components/templates/` untuk layout/shell/page composition.
 - Untuk call backend dari browser, ikuti prefix environment yang sudah ada (`NEXT_PUBLIC_API_PREFIX` dengan default `/api`).
 - Untuk form, jangan bergantung pada validasi/error bawaan HTML browser. Gunakan `noValidate`, validasi di React, dan tampilkan pesan error merah di bawah input.
-- Gunakan komponen reusable `frontend/components/common/TextInput.tsx` untuk input biasa dan `frontend/components/common/PasswordInput.tsx` untuk input password.
+- Gunakan komponen reusable `frontend/components/atoms/TextInput.tsx` untuk input biasa dan `frontend/components/atoms/PasswordInput.tsx` untuk input password.
 - Setiap input password wajib memakai `PasswordInput` agar tersedia tombol mata untuk hide/show password.
-- Untuk hasil submit form dari server, gunakan `frontend/components/common/FormStatusDialog.tsx`: variant `success` untuk berhasil tambah/ubah data, variant `error` untuk gagal dari server yang bukan validasi field.
+- Untuk hasil submit form dari server, gunakan `frontend/components/molecules/FormStatusToast.tsx`: variant `success` untuk berhasil tambah/ubah data, variant `error` untuk gagal dari server yang bukan validasi field.
 - Jangan menambahkan state management, UI framework, atau styling system baru tanpa kebutuhan nyata.
 - Pastikan UI responsif dan tidak membuat teks saling tumpang tindih.
 

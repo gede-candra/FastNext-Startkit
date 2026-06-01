@@ -2,23 +2,23 @@
 
 import { useEffect } from "react";
 
-import { Icon } from "./Icon";
+import { Icon } from "../atoms/Icon";
 
 const AUTO_CLOSE_MS = 10000;
 
-export type FormStatusDialogState = {
+export type FormStatusToastState = {
   description: string;
   title: string;
   variant: "error" | "success";
 };
 
-type FormStatusDialogProps = {
+type FormStatusToastProps = {
   isOpen: boolean;
   onClose: () => void;
-  status: FormStatusDialogState | null;
+  status: FormStatusToastState | null;
 };
 
-export function FormStatusDialog({ isOpen, onClose, status }: FormStatusDialogProps) {
+export function FormStatusToast({ isOpen, onClose, status }: FormStatusToastProps) {
   useEffect(() => {
     if (!isOpen || !status) {
       return undefined;
