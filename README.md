@@ -6,6 +6,13 @@
 
 FASTNEXT adalah starter kit full-stack dengan backend FastAPI dan frontend Next.js App Router. Project ini sudah memakai autentikasi berbasis cookie `HttpOnly`, CSRF token untuk request perubahan data, dashboard terproteksi, halaman profil, dan halaman ubah password.
 
+## Daftar Isi
+
+1. [Stack](#stack)
+2. [Struktur Proyek](#struktur-proyek)
+3. [Setup Dengan Docker](#setup-dengan-docker)
+4. [Setup Lokal Tanpa Docker](#setup-lokal-tanpa-docker)
+
 ## Stack
 
 - Backend: FastAPI, SQLAlchemy, Alembic, Pydantic Settings
@@ -46,25 +53,57 @@ fastnext/
 └── README.md                        # Dokumentasi project
 ```
 
-## Route Frontend
+## Setup Dengan Docker
 
-- `/login`: halaman login.
-- `/`: dashboard utama. Jika user belum login, diarahkan ke `/login`.
-- `/profile`: halaman profil saya.
-- `/change-password`: halaman ubah password.
+Gunakan mode ini untuk production/staging server.
 
-Welcome page lama sudah dihapus karena halaman awal aplikasi sekarang adalah flow login/dashboard.
+### Siapkan environment
 
-## API Yang Dipakai Frontend Saat Ini
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+```
 
-Base URL lokal default: `http://localhost:8000`
+Sesuaikan nilai `.env` dengan environment server, terutama database, CORS, secret key auth, dan URL backend/frontend.
 
-- `POST /api/v1/auth/login`
-- `POST /api/v1/auth/logout`
-- `GET /api/v1/auth/me`
-- `PATCH /api/v1/auth/me`
+### Jalankan service
 
-API welcome lama sudah dihapus dari backend karena tidak dipakai oleh frontend.
+PostgreSQL default:
+
+```bash
+docker compose up -d --build
+```
+
+MySQL:
+
+```bash
+docker compose --profile mysql up -d --build
+```
+
+SQLite:
+
+```bash
+docker compose --profile sqlite up -d --build
+```
+
+### Migrasi database dan buat superadmin pertama
+
+```bash
+docker compose exec backend alembic upgrade head
+docker compose exec backend python createsuperuser.py
+```
+
+Atau langsung dengan argumen:
+
+```bash
+docker compose exec backend python createsuperuser.py \
+  --name "Superadmin" \
+  --email admin@example.com \
+  --password password123 \
+  --no-input
+```
+
+Setelah selesai, buka frontend dan login dengan akun tersebut.
 
 ## Setup Lokal Tanpa Docker
 
@@ -79,7 +118,18 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 alembic upgrade head
+python createsuperuser.py
 python runserver.py
+```
+
+Atau buat superadmin langsung dengan argumen sebelum menjalankan server:
+
+```bash
+python createsuperuser.py \
+  --name "Superadmin" \
+  --email admin@example.com \
+  --password password123 \
+  --no-input
 ```
 
 Jika backend perlu port eksplisit:
@@ -101,52 +151,4 @@ npm run dev
 
 Frontend lokal berjalan di `http://localhost:3000`.
 
-## Environment Frontend
-
-Contoh `frontend/.env`:
-
-```env
-APP_NAME=Fastnext
-BASE_URL=http://localhost:8000
-API_PREFIX=/api
-```
-
-Jika backend lokal berjalan di port lain, sesuaikan `BASE_URL`.
-
-## Membuat Superadmin Pertama
-
-Dari direktori `backend` dengan virtualenv aktif:
-
-```bash
-python createsuperuser.py
-```
-
-Atau langsung dengan argumen:
-
-```bash
-python createsuperuser.py \
-  --name "Superadmin" \
-  --email admin@example.com \
-  --password password123 \
-  --no-input
-```
-
 Setelah berhasil, buka `http://localhost:3000`. Jika belum login, aplikasi mengarahkan ke `/login`; setelah login berhasil, user masuk ke dashboard di `/`.
-
-## Verifikasi Ringan
-
-Backend:
-
-```bash
-cd backend
-python3 -m compileall app
-```
-
-Frontend:
-
-```bash
-cd frontend
-./node_modules/.bin/tsc --noEmit
-```
-
-Jangan jalankan `npm run build` kecuali memang dibutuhkan secara eksplisit.
